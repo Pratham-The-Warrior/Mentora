@@ -117,8 +117,16 @@ export default function OpportunitiesPage() {
                       </div>
                     </div>
                   </div>
-                  <Button className="md:whitespace-nowrap bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700">
-                    Learn More
+                  <Button
+                    asChild
+                    className="md:whitespace-nowrap bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700"
+                  >
+                    <Link
+                      to="/counselor"
+                      state={{ automatedQuery: `I want to learn more about the ${opp.title} opportunity by ${opp.organization}. How can I prepare for it?` }}
+                    >
+                      Learn More
+                    </Link>
                   </Button>
                 </div>
               </CardContent>

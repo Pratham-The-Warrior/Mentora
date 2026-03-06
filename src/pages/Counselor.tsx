@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -140,6 +141,9 @@ function AIChatSection() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
+  const location = useLocation()
+  const navigate = useNavigate()
+
   const userData = (() => {
     try { return JSON.parse(localStorage.getItem("onboardingData") || "{}") } catch { return {} }
   })()
@@ -170,6 +174,26 @@ function AIChatSection() {
       setTimeout(() => inputRef.current?.focus(), 100)
     }
   }
+
+  // Auto-send query if passed in via router state
+  useEffect(() => {
+    if (location.state?.automatedQuery && messages.length === 0 && !loading) {
+      let query = location.state.automatedQuery
+
+      // Append user context if available to improve AI response
+      if (userData.stream || userData.class || userData.goals) {
+        query += `\n\nContext about me: I am a ${userData.class || 'high school'} student`
+        if (userData.stream) query += ` studying ${userData.stream}.`
+        if (userData.interests && userData.interests.length > 0) query += ` My main interests are ${userData.interests.join(", ")}.`
+        if (userData.goals) query += ` My primary goal is ${userData.goals.replace('-', ' ')}.`
+        query += ` Please tailor your advice specifically to my profile.`
+      }
+
+      // Replace the current history entry to clear the state, preventing re-fires on reload
+      navigate(location.pathname, { replace: true, state: {} })
+      sendMessage(query)
+    }
+  }, [location.state, messages.length, loading, location.pathname, navigate, userData.stream, userData.class, userData.interests, userData.goals])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input) }
@@ -257,15 +281,15 @@ function AIChatSection() {
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"} items-end`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === "user"
-                      ? "bg-gradient-to-br from-green-500 to-emerald-600"
-                      : "bg-gradient-to-br from-blue-600 to-green-600"
+                    ? "bg-gradient-to-br from-green-500 to-emerald-600"
+                    : "bg-gradient-to-br from-blue-600 to-green-600"
                     }`}>
                     {msg.role === "user" ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
                   </div>
                   <div className={`max-w-[85%] flex flex-col gap-1 ${msg.role === "user" ? "items-end" : "items-start"}`}>
                     <div className={`px-4 py-3 rounded-2xl shadow-sm ${msg.role === "user"
-                        ? "bg-gradient-to-br from-blue-600 to-green-600 text-white rounded-br-sm"
-                        : "bg-white dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-bl-sm"
+                      ? "bg-gradient-to-br from-blue-600 to-green-600 text-white rounded-br-sm"
+                      : "bg-white dark:bg-gray-700/60 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-bl-sm"
                       }`}>
                       {msg.role === "model"
                         ? <FormattedMessage content={msg.content} />

@@ -27,6 +27,7 @@ function App() {
                         {/* Public */}
                         <Route path="/" element={<Home />} />
                         <Route path="/explore" element={<Explore />} />
+                        <Route path="/explore/*" element={<Explore />} />
                         <Route path="/careers" element={<Careers />} />
                         <Route path="/colleges" element={<Colleges />} />
                         <Route path="/contact" element={<Contact />} />

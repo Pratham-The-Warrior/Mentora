@@ -295,7 +295,10 @@ function UniversityCard({ college }: { college: any }) {
           variant="outline"
           asChild
         >
-          <Link to={`/colleges/${college.name.toLowerCase().replace(/\s+/g, "-")}`}>
+          <Link
+            to="/counselor"
+            state={{ automatedQuery: `I want to learn more about applying to ${college.name}. What is the admission process, required scores, and fees?` }}
+          >
             Learn More <ExternalLink className="w-4 h-4 ml-2" />
           </Link>
         </Button>

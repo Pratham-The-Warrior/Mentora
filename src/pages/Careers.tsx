@@ -114,7 +114,12 @@ export default function CareersPage() {
                     className="w-full bg-transparent border dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
                     variant="outline"
                   >
-                    <Link to="/explore">Learn More</Link>
+                    <Link
+                      to="/counselor"
+                      state={{ automatedQuery: `I want to learn more about becoming a ${career.title}. What is the roadmap, required skills, and growth potential?` }}
+                    >
+                      Learn More
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>

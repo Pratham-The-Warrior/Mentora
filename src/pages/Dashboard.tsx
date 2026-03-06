@@ -255,7 +255,10 @@ export default function DashboardPage() {
                         asChild
                         className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 bg-transparent"
                       >
-                        <Link to={`/explore/${career.toLowerCase().replace(/\s+/g, "-")}`}>
+                        <Link
+                          to="/counselor"
+                          state={{ automatedQuery: `I want to learn more about becoming a ${career}. What is the roadmap, required skills, and growth potential?` }}
+                        >
                           Learn More <ExternalLink className="w-3 h-3 ml-1" />
                         </Link>
                       </Button>

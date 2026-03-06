@@ -123,3 +123,53 @@ export const chatWithAI = async (req: AuthRequest, res: Response): Promise<void>
         source: 'fallback',
     })
 }
+
+export const getAICareerRecommendations = async (req: AuthRequest, res: Response): Promise<void> => {
+    const apiKey = process.env.GEMINI_API_KEY
+    const fallbackCareers = ["Computer Science Engineering", "Data Science", "Medicine (MBBS)", "Business Administration"]
+
+    if (!apiKey || apiKey.length < 10) {
+        res.json({ success: true, careers: fallbackCareers, source: 'fallback' })
+        return
+    }
+
+    try {
+        const profileSummary = await buildProfileSummary(req.user!.id)
+        const genAI = new GoogleGenerativeAI(apiKey)
+
+        const prompt = `Based on this student profile summary: "${profileSummary || 'A high school student exploring careers'}", recommend exactly 4 specific, high-growth career paths in India.
+CRITICAL INSTRUCTION: Your response must be ONLY a raw, valid JSON array of 4 strings representing the career titles. Do not include any markdown formatting like \`\`\`json or \`\`\`. Do not include any explanation.
+Example: ["Career 1", "Career 2", "Career 3", "Career 4"]`
+
+        for (const modelName of MODEL_CHAIN) {
+            try {
+                console.log(`[Recommendations] Trying model: ${modelName}`)
+                const model = genAI.getGenerativeModel({ model: modelName })
+                const result = await model.generateContent(prompt)
+                let reply = result.response.text().trim()
+
+                // Clean up any markdown blocks if the AI disobeyed instructions
+                if (reply.startsWith('```json')) reply = reply.substring(7)
+                if (reply.startsWith('```')) reply = reply.substring(3)
+                if (reply.endsWith('```')) reply = reply.substring(0, reply.length - 3)
+                reply = reply.trim()
+
+                const careers = JSON.parse(reply)
+
+                if (Array.isArray(careers) && careers.length > 0) {
+                    res.json({ success: true, careers: careers.slice(0, 4), source: modelName })
+                    return
+                }
+            } catch (err) {
+                console.warn(`[Recommendations] Model ${modelName} failed or returned invalid JSON.`)
+            }
+        }
+
+        throw new Error("All models failed to return valid JSON arrays")
+
+    } catch (error) {
+        console.error('[Recommendations] Error generating recommendations:', error)
+        res.json({ success: true, careers: fallbackCareers, source: 'fallback' })
+    }
+}
+

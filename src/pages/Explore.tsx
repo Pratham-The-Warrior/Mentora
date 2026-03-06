@@ -369,13 +369,15 @@ function CareerCard({ career }: { career: any }) {
           </div>
         </div>
 
-        {/* Action Button */}
         <Button
           className="w-full mt-4 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 bg-transparent"
           variant="outline"
           asChild
         >
-          <Link to={`/explore/${career.title.toLowerCase().replace(/\s+/g, "-")}`}>
+          <Link
+            to="/counselor"
+            state={{ automatedQuery: `I want to learn more about becoming a ${career.title}. What is the roadmap, required skills, and growth potential?` }}
+          >
             Learn More <ExternalLink className="w-4 h-4 ml-2" />
           </Link>
         </Button>

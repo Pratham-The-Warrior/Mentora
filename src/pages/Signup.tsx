@@ -53,7 +53,7 @@ export default function SignupPage() {
     setLoading(true)
     try {
       await signup(formData.fullName, formData.email, formData.password)
-      navigate("/onboarding")
+      navigate("/dashboard")
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
       setError(msg || "Signup failed. Please try again.")
