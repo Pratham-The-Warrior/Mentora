@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import { ThemeProvider } from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/layout/theme-provider"
+import { AuthProvider } from '@/hooks/useAuth'
+import { ProtectedRoute, GuestRoute } from '@/components/shared/route-guards'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
@@ -19,25 +21,32 @@ import Resources from './pages/Resources'
 function App() {
     return (
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-            <Router>
-                <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<Signup />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/roadmap" element={<Roadmap />} />
-                    <Route path="/explore" element={<Explore />} />
-                    <Route path="/careers" element={<Careers />} />
-                    <Route path="/colleges" element={<Colleges />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/counselor" element={<Counselor />} />
-                    <Route path="/faq" element={<Faq />} />
-                    <Route path="/onboarding" element={<Onboarding />} />
-                    <Route path="/opportunities" element={<Opportunities />} />
-                    <Route path="/quiz" element={<Quiz />} />
-                    <Route path="/resources" element={<Resources />} />
-                </Routes>
-            </Router>
+            <AuthProvider>
+                <Router>
+                    <Routes>
+                        {/* Public */}
+                        <Route path="/" element={<Home />} />
+                        <Route path="/explore" element={<Explore />} />
+                        <Route path="/careers" element={<Careers />} />
+                        <Route path="/colleges" element={<Colleges />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/faq" element={<Faq />} />
+                        <Route path="/resources" element={<Resources />} />
+                        <Route path="/opportunities" element={<Opportunities />} />
+
+                        {/* Guest-only (redirect to dashboard if already logged in) */}
+                        <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+                        <Route path="/signup" element={<GuestRoute><Signup /></GuestRoute>} />
+
+                        {/* Protected (redirect to login if not authenticated) */}
+                        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                        <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+                        <Route path="/roadmap" element={<ProtectedRoute><Roadmap /></ProtectedRoute>} />
+                        <Route path="/quiz" element={<ProtectedRoute><Quiz /></ProtectedRoute>} />
+                        <Route path="/counselor" element={<ProtectedRoute><Counselor /></ProtectedRoute>} />
+                    </Routes>
+                </Router>
+            </AuthProvider>
         </ThemeProvider>
     )
 }

@@ -6,12 +6,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Brain, ArrowRight, Mail, Lock, User } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { Link } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function SignupPage() {
   const navigate = useNavigate()
+  const { signup } = useAuth()
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -31,36 +33,33 @@ export default function SignupPage() {
     e.preventDefault()
     setError("")
 
-    // Validation
     if (!formData.fullName.trim()) {
       setError("Full name is required")
       return
     }
-
     if (!formData.email.includes("@")) {
       setError("Please enter a valid email address")
       return
     }
-
     if (formData.password.length < 6) {
       setError("Password must be at least 6 characters long")
       return
     }
-
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match")
       return
     }
 
     setLoading(true)
-
-    // Mock signup for frontend-only version
-    setTimeout(() => {
-      localStorage.setItem("userEmail", formData.email)
-      localStorage.setItem("currentUser", "true") // Set currentUser flag so onboarding can verify user came from signup
+    try {
+      await signup(formData.fullName, formData.email, formData.password)
       navigate("/onboarding")
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      setError(msg || "Signup failed. Please try again.")
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (

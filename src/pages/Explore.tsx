@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AuthNavbar } from "@/components/auth-navbar"
+import { AuthNavbar } from "@/components/layout/auth-navbar"
 import {
   Brain,
   Search,

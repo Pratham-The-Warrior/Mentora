@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Brain, ArrowRight, TrendingUp, Users, Zap } from "lucide-react"
-import { AuthNavbar } from "@/components/auth-navbar"
+import { AuthNavbar } from "@/components/layout/auth-navbar"
 import { Link } from "react-router-dom"
 
 const featuredCareers = [

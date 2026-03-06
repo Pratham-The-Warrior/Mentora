@@ -6,12 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Brain, ArrowRight, Mail, Lock } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { Link } from "react-router-dom"
 import { useNavigate } from "react-router-dom"
+import { useAuth } from "@/hooks/useAuth"
+import api from "@/lib/api"
 
 export default function LoginPage() {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -29,30 +32,31 @@ export default function LoginPage() {
     e.preventDefault()
     setError("")
 
-    // Validation
     if (!formData.email.includes("@")) {
       setError("Please enter a valid email address")
       return
     }
-
     if (formData.password.length < 6) {
       setError("Password must be at least 6 characters long")
       return
     }
 
     setLoading(true)
-
-    // Mock login for frontend-only version
-    setTimeout(() => {
-      localStorage.setItem("userEmail", formData.email)
-      const onboardingData = localStorage.getItem("onboardingData")
-      if (onboardingData) {
+    try {
+      await login(formData.email, formData.password)
+      // Check if user has completed onboarding
+      try {
+        await api.get('/profile')
         navigate("/dashboard")
-      } else {
+      } catch {
         navigate("/onboarding")
       }
+    } catch (err: unknown) {
+      const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+      setError(msg || "Login failed. Please check your credentials.")
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (

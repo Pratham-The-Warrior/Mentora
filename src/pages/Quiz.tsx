@@ -7,7 +7,8 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Brain, ArrowLeft, ArrowRight, CheckCircle, TrendingUp } from "lucide-react"
 import { Link } from "react-router-dom"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeToggle } from "@/components/layout/theme-toggle"
+import api from "@/lib/api"
 
 interface Question {
   id: number
@@ -147,7 +148,7 @@ export default function QuizPage() {
   interface Results {
     topCategory: keyof typeof careerRecommendations
     scores: Record<string, number>
-    recommendation: typeof careerRecommendations[keyof typeof careerRecommendations]
+    recommendation: (typeof careerRecommendations)[keyof typeof careerRecommendations]
   }
 
   const [results, setResults] = useState<Results | null>(null)
@@ -172,7 +173,7 @@ export default function QuizPage() {
     }
   }
 
-  const calculateResults = () => {
+  const calculateResults = async () => {
     const categoryScores: Record<keyof typeof careerRecommendations, number> = {
       analytical: 0,
       creative: 0,
@@ -192,12 +193,25 @@ export default function QuizPage() {
       categoryScores[a[0] as keyof typeof categoryScores] > categoryScores[b[0] as keyof typeof categoryScores] ? a : b,
     )[0] as keyof typeof careerRecommendations
 
-    setResults({
+    const newResults = {
       topCategory,
       scores: categoryScores,
       recommendation: careerRecommendations[topCategory],
-    })
+    }
+
+    setResults(newResults)
     setShowResults(true)
+
+    // Submit to backend (non-blocking)
+    try {
+      await api.post("/quiz/submit", {
+        answers,
+        scores: categoryScores,
+        topCategory,
+      })
+    } catch (err) {
+      console.warn("Quiz submit to API failed (offline mode):", err)
+    }
   }
 
   if (showResults && results) {
@@ -212,20 +226,16 @@ export default function QuizPage() {
                   <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
                     <Brain className="w-6 h-6 text-white" />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
                 </div>
                 <div>
                   <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
                     Mentora
                   </span>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">STEM Career Guide</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">Career Guide</div>
                 </div>
               </Link>
               <div className="flex items-center space-x-4">
                 <ThemeToggle />
-                <div className="text-sm text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full font-medium">
-                  Question {currentQuestion + 1} of {questions.length}
-                </div>
               </div>
             </div>
           </div>
@@ -240,7 +250,7 @@ export default function QuizPage() {
               </div>
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Your Career Assessment Results</h1>
               <p className="text-gray-600 dark:text-gray-300">
-                Based on your responses, here are your personalized STEM career recommendations
+                Based on your responses, here are your personalized career recommendations
               </p>
             </div>
 
@@ -299,42 +309,24 @@ export default function QuizPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                        1
-                      </div>
+                      <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">1</div>
                       <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white">
-                          Explore Detailed Career Information
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                          Learn about job responsibilities, required skills, and career progression
-                        </p>
+                        <h4 className="font-semibold text-gray-900 dark:text-white">Explore Detailed Career Information</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Learn about job responsibilities, required skills, and career progression</p>
                       </div>
                     </div>
-
                     <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                        2
-                      </div>
+                      <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center text-white text-sm font-bold">2</div>
                       <div>
-                        <h4 className="font-semibold text-gray-900 dark:text-white">
-                          Find Relevant Colleges & Programs
-                        </h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                          Discover universities offering programs aligned with your career goals
-                        </p>
+                        <h4 className="font-semibold text-gray-900 dark:text-white">Generate Your Career Roadmap</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Get an AI-generated step-by-step plan tailored to your profile</p>
                       </div>
                     </div>
-
                     <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                      <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                        3
-                      </div>
+                      <div className="w-6 h-6 bg-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">3</div>
                       <div>
                         <h4 className="font-semibold text-gray-900 dark:text-white">Schedule a Counselor Session</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-300">
-                          Get personalized guidance from our career experts
-                        </p>
+                        <p className="text-sm text-gray-600 dark:text-gray-300">Get personalized guidance from our career experts</p>
                       </div>
                     </div>
                   </CardContent>
@@ -346,7 +338,7 @@ export default function QuizPage() {
                 {/* Personality Profile */}
                 <Card className="border-0 shadow-lg dark:bg-gray-800/50 dark:border-gray-700">
                   <CardHeader>
-                    <CardTitle className="text-lg dark:text-white">Your Profile</CardTitle>
+                    <CardTitle className="text-lg dark:text-white">Your Aptitude Profile</CardTitle>
                     <CardDescription className="dark:text-gray-400">Strengths based on your responses</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
@@ -369,46 +361,16 @@ export default function QuizPage() {
                   </CardHeader>
                   <CardContent className="space-y-3">
                     <Button className="w-full" asChild>
-                      <Link to="/explore">Explore Careers</Link>
-                    </Button>
-                    <Button
-                      className="w-full dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 bg-transparent"
-                      variant="outline"
-                      asChild
-                    >
-                      <Link to="/colleges">Find Colleges</Link>
-                    </Button>
-                    <Button
-                      className="w-full dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 bg-transparent"
-                      variant="outline"
-                      asChild
-                    >
-                      <Link to="/counselor">Talk to Counselor</Link>
-                    </Button>
-                    <Button
-                      className="w-full dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 bg-transparent"
-                      variant="outline"
-                      asChild
-                    >
                       <Link to="/dashboard">Go to Dashboard</Link>
                     </Button>
-                  </CardContent>
-                </Card>
-
-                {/* Share Results */}
-                <Card className="border-0 shadow-lg dark:bg-gray-800/50 dark:border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="text-lg dark:text-white">Share Your Results</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      Share your career assessment results with parents or counselors
-                    </p>
-                    <Button
-                      variant="outline"
-                      className="w-full dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 bg-transparent"
-                    >
-                      Generate Report
+                    <Button className="w-full dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 bg-transparent" variant="outline" asChild>
+                      <Link to="/roadmap">Generate Roadmap</Link>
+                    </Button>
+                    <Button className="w-full dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 bg-transparent" variant="outline" asChild>
+                      <Link to="/explore">Explore Careers</Link>
+                    </Button>
+                    <Button className="w-full dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 bg-transparent" variant="outline" asChild>
+                      <Link to="/counselor">Talk to Counselor</Link>
                     </Button>
                   </CardContent>
                 </Card>
@@ -427,17 +389,14 @@ export default function QuizPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-3">
-              <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Brain className="w-6 h-6 text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-pulse"></div>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
+                <Brain className="w-6 h-6 text-white" />
               </div>
               <div>
                 <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
                   Mentora
                 </span>
-                <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">STEM Career Guide</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">Career Guide</div>
               </div>
             </Link>
             <div className="flex items-center space-x-4">
@@ -456,7 +415,7 @@ export default function QuizPage() {
           <div className="mb-8">
             <Progress value={progress} className="h-3 mb-2" />
             <p className="text-sm text-gray-600 dark:text-gray-300">
-              {Math.round(progress)}% Complete - This assessment takes about 5 minutes
+              {Math.round(progress)}% Complete — This assessment takes about 5 minutes
             </p>
           </div>
 
@@ -464,9 +423,7 @@ export default function QuizPage() {
           <Card className="border-0 shadow-lg dark:bg-gray-800/50 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="text-xl dark:text-white">{questions[currentQuestion].question}</CardTitle>
-              <CardDescription className="dark:text-gray-400">
-                Choose the option that best describes you
-              </CardDescription>
+              <CardDescription className="dark:text-gray-400">Choose the option that best describes you</CardDescription>
             </CardHeader>
             <CardContent>
               <RadioGroup
@@ -516,7 +473,7 @@ export default function QuizPage() {
 
           {/* Quiz Info */}
           <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-            <p>This assessment evaluates your interests, skills, and preferences to recommend suitable STEM careers.</p>
+            <p>This assessment evaluates your interests, skills, and preferences to recommend suitable careers.</p>
           </div>
         </div>
       </div>

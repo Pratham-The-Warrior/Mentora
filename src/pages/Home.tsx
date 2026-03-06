@@ -1,12 +1,16 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { RoadmapCreatorModal } from "@/components/shared/roadmap-creator-modal"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Globe, Users, Target, Brain, Lightbulb, TrendingUp } from "lucide-react"
-import { AuthNavbar } from "@/components/auth-navbar"
-import { Link } from "react-router-dom"
+import { ArrowRight, Globe, Users, Target, Brain, Lightbulb, TrendingUp, LayoutDashboard } from "lucide-react"
+import { AuthNavbar } from "../components/layout/auth-navbar"
+import { Link, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
+import { useAuth } from "@/hooks/useAuth"
 
 export default function HomePage() {
+  const { isAuthenticated } = useAuth()
+  const navigate = useNavigate()
   const [isVisible, setIsVisible] = useState(false)
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
 
@@ -75,23 +79,48 @@ export default function HomePage() {
             className={`flex flex-col sm:flex-row gap-4 justify-center transition-all duration-500 delay-200 ${isVisible ? "animate-fade-in-up" : "opacity-0 translate-y-4"
               }`}
           >
-            <Button
-              asChild
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 transition-all duration-200"
-            >
-              <Link to="/signup">
-                Start Your Journey <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 transition-all duration-200 bg-transparent"
-            >
-              <Link to="/explore">Explore Careers</Link>
-            </Button>
+            {isAuthenticated ? (
+              // Logged-in users → go straight to Dashboard
+              <>
+                <Button
+                  size="lg"
+                  onClick={() => navigate("/dashboard")}
+                  className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 transition-all duration-200"
+                >
+                  <LayoutDashboard className="mr-2 w-4 h-4" />
+                  Go to Dashboard
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 transition-all duration-200 bg-transparent"
+                >
+                  <Link to="/explore">Explore Careers</Link>
+                </Button>
+              </>
+            ) : (
+              // Guests → sign up flow
+              <>
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 transition-all duration-200"
+                >
+                  <Link to="/signup">
+                    Start Your Journey <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800 transition-all duration-200 bg-transparent"
+                >
+                  <Link to="/explore">Explore Careers</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
@@ -195,7 +224,7 @@ export default function HomePage() {
               color: "pink",
               items: ["Research Internships", "Business Competitions", "Summer Programs", "Merit Scholarships"],
             },
-          ].map((feature, index) => (
+          ].map((feature) => (
             <Card
               key={feature.title}
               className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 dark:bg-gray-800/50 dark:border-gray-700 group"
@@ -238,10 +267,10 @@ export default function HomePage() {
               <div
                 key={index}
                 className={`absolute inset-0 transition-all duration-500 transform ${index === currentTestimonial
-                    ? "translate-x-0 opacity-100"
-                    : index < currentTestimonial
-                      ? "-translate-x-full opacity-0"
-                      : "translate-x-full opacity-0"
+                  ? "translate-x-0 opacity-100"
+                  : index < currentTestimonial
+                    ? "-translate-x-full opacity-0"
+                    : "translate-x-full opacity-0"
                   }`}
               >
                 <Card className="border-0 shadow-lg dark:bg-gray-800/50 dark:border-gray-700 h-full">
@@ -276,8 +305,8 @@ export default function HomePage() {
                 key={index}
                 onClick={() => setCurrentTestimonial(index)}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentTestimonial
-                    ? "bg-blue-600 scale-110"
-                    : "bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500"
+                  ? "bg-blue-600 scale-110"
+                  : "bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500"
                   }`}
               />
             ))}

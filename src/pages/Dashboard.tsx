@@ -3,9 +3,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { RoadmapCreatorModal } from "@/components/roadmap-creator-modal"
+import { RoadmapCreatorModal } from "@/components/shared/roadmap-creator-modal"
 import { Brain, BookOpen, Globe, Target, TrendingUp, Calendar, Award, MessageCircle, ExternalLink, Star, Clock, MapPin } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { Link } from "react-router-dom"
 
 interface OnboardingData {
@@ -65,6 +65,51 @@ export default function DashboardPage() {
       return ["MIT", "Stanford University", "UC Berkeley", "Carnegie Mellon"]
     }
     return ["Top Universities", "Premier Institutes", "Research Universities"]
+  }
+
+  const getMatchedCounselors = () => {
+    const counselors = [
+      {
+        id: "c1",
+        name: "Dr. Priya Sharma",
+        specialization: "Engineering & Tech Careers",
+        rating: 4.9,
+        image: "https://i.pravatar.cc/150?u=priya",
+        matchReason: "Matches your PCM stream",
+      },
+      {
+        id: "c2",
+        name: "Dr. Rajesh Kumar",
+        specialization: "Medical & Life Sciences",
+        rating: 4.8,
+        image: "https://i.pravatar.cc/150?u=rajesh",
+        matchReason: "Matches your PCB stream",
+      },
+      {
+        id: "c3",
+        name: "Ms. Anita Verma",
+        specialization: "International Education",
+        rating: 4.9,
+        image: "https://i.pravatar.cc/150?u=anita",
+        matchReason: "Matches your Study Abroad goals",
+      },
+      {
+        id: "c4",
+        name: "Prof. Alok Gupta",
+        specialization: "Pure Sciences & Research",
+        rating: 4.7,
+        image: "https://i.pravatar.cc/150?u=alok",
+        matchReason: "Matches your core science interests",
+      }
+    ]
+
+    if (userData.stream === "PCM" || userData.interests.includes("Computer Science & AI")) {
+      return [counselors[0], counselors[2]]
+    }
+    if (userData.stream === "PCB" || userData.interests.includes("Medical & Healthcare")) {
+      return [counselors[1], counselors[2]]
+    }
+    return [counselors[0], counselors[3]]
   }
 
   return (
@@ -220,56 +265,59 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Recommended Colleges */}
+            {/* Matched Expert Counselors */}
             <Card className="border-0 shadow-lg dark:bg-gray-800/50 dark:border-gray-700">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 dark:text-white">
-                  <Globe className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                  Top College Recommendations
+                  <Award className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  Matched Expert Counselors
                 </CardTitle>
                 <CardDescription className="dark:text-gray-300">
-                  Colleges that align with your target exams and goals
+                  Experts carefully selected based on your stream and career goals
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {getRecommendedColleges().map((college, index) => (
+                  {getMatchedCounselors().map((counselor) => (
                     <div
-                      key={college}
+                      key={counselor.id}
                       className="flex items-center justify-between p-4 border dark:border-gray-600 rounded-lg hover:shadow-md transition-shadow dark:hover:bg-gray-700/50"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-white font-bold">
-                          {college.charAt(0)}
-                        </div>
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={counselor.image}
+                          alt={counselor.name}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-gray-700 shadow-sm"
+                        />
                         <div>
-                          <h3 className="font-semibold text-gray-900 dark:text-white">{college}</h3>
-                          <div className="flex items-center gap-2 mt-1">
+                          <h3 className="font-semibold text-gray-900 dark:text-white">{counselor.name}</h3>
+                          <p className="text-xs font-medium text-blue-600 dark:text-blue-400 mb-1">
+                            {counselor.specialization}
+                          </p>
+                          <div className="flex items-center gap-2">
                             <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-3 h-3 ${i < 4 ? "text-yellow-400 fill-current" : "text-gray-300 dark:text-gray-600"}`}
-                                />
-                              ))}
+                              <Star className="w-3.5 h-3.5 text-yellow-400 fill-current" />
+                              <span className="text-xs font-medium ml-1 dark:text-gray-300">{counselor.rating}</span>
                             </div>
-                            <span className="text-xs text-gray-600 dark:text-gray-400">Rank #{index + 1}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400 border-l dark:border-gray-600 pl-2">
+                              {counselor.matchReason}
+                            </span>
                           </div>
                         </div>
                       </div>
                       <Button
-                        variant="outline"
                         size="sm"
                         asChild
-                        className="dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 bg-transparent"
+                        className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white shrink-0 ml-4"
                       >
-                        <Link to={`/colleges/${college.toLowerCase().replace(/\s+/g, "-")}`}>View Details</Link>
+                        <Link to="/counselor">Book Session</Link>
                       </Button>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
+
 
             {/* Action Items */}
             <Card className="border-0 shadow-lg dark:bg-gray-800/50 dark:border-gray-700">

@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Progress } from "@/components/ui/progress"
 import { ArrowLeft, ArrowRight, Brain } from "lucide-react"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { Link, useNavigate } from "react-router-dom"
+import api from "@/lib/api"
 
 interface OnboardingData {
   class: string
@@ -34,22 +35,30 @@ export default function OnboardingPage() {
   const progress = (step / totalSteps) * 100
 
   useEffect(() => {
+    const token = localStorage.getItem("token")
     const userEmail = localStorage.getItem("userEmail")
-    if (!userEmail) {
+    if (!token && !userEmail) {
       navigate("/signup")
     }
   }, [navigate])
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step < totalSteps) {
       setStep(step + 1)
     } else {
-      // Save data and redirect to dashboard
+      // Save to localStorage for instant access
       localStorage.setItem("onboardingData", JSON.stringify(data))
       localStorage.setItem("currentUser", "true")
+      // Save to backend API (non-blocking)
+      try {
+        await api.post('/profile', data)
+      } catch (err) {
+        console.warn('Profile API save failed, using localStorage fallback:', err)
+      }
       navigate("/dashboard")
     }
   }
+
 
   const handleBack = () => {
     if (step > 1) {
