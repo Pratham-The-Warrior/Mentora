@@ -124,7 +124,7 @@ const matchCourses = (milestone: IMilestone): CourseRecommendation[] => {
 const getAICourses = async (milestone: IMilestone): Promise<CourseRecommendation[]> => {
     const { GoogleGenerativeAI } = await import('@google/generative-ai')
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string)
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' })
 
     const prompt = `You are a career counselor for Indian students. Suggest 4-5 high-quality online courses for this learning milestone.
 
@@ -157,4 +157,73 @@ export const getCoursesForMilestone = async (milestone: IMilestone): Promise<Cou
         }
     }
     return matchCourses(milestone)
+}
+
+// AI-powered per-task resource finder via Gemini
+const getAITaskResources = async (taskText: string, milestone: IMilestone): Promise<CourseRecommendation[]> => {
+    const { GoogleGenerativeAI } = await import('@google/generative-ai')
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY as string)
+    const model = genAI.getGenerativeModel({ model: 'gemini-flash-latest' })
+
+    const prompt = `You are a career counselor for Indian students. A student needs help finding resources for a specific task in their learning roadmap.
+
+Milestone: "${milestone.title}"
+Specific Task: "${taskText}"
+
+Suggest 3-4 high-quality, real online resources (courses, videos, articles, tools) that directly help with this specific task. The resources should be very specific to the task, not generic.
+
+Return a JSON array. Each resource must have:
+- title: string (actual resource name)
+- platform: one of "Coursera" | "NPTEL" | "YouTube" | "freeCodeCamp" | "Khan Academy" | "Udemy" | "edX"
+- url: string (real, working URL)
+- effort: string (e.g., "4 weeks", "10 hours", "Self-paced", "30 mins")
+- isFree: boolean
+- tags: string[] (2-3 keywords relevant to the task)
+
+Return ONLY valid JSON array, no markdown.`
+
+    console.log(`🔍 Calling Gemini for task resources: "${taskText.substring(0, 50)}..."`)
+    const result = await model.generateContent(prompt)
+    const text = result.response.text().trim().replace(/^```json?\s*/i, '').replace(/\s*```$/, '')
+    const resources = JSON.parse(text)
+    console.log(`✅ Gemini returned ${resources.length} resources for task`)
+    return resources
+}
+
+// Per-task resource helper: uses Gemini AI with hardcoded fallback
+export const getResourcesForTaskText = async (taskText: string, milestone: IMilestone): Promise<CourseRecommendation[]> => {
+    const apiKey = process.env.GEMINI_API_KEY
+    if (apiKey && apiKey.length > 10) {
+        try {
+            return await getAITaskResources(taskText, milestone)
+        } catch (err) {
+            console.warn('⚠️ AI task resource generation failed, using curated fallback:', err)
+        }
+    }
+
+    // Fallback: keyword matching against curated database
+    const text = `${taskText} ${milestone.title}`.toLowerCase()
+    const matched = new Set<CourseRecommendation>()
+
+    const priorityKeys = Object.keys(COURSE_DATABASE).filter((k) => k !== 'default')
+    priorityKeys.forEach((key) => {
+        if (text.includes(key)) {
+            COURSE_DATABASE[key].forEach((c) => matched.add(c))
+        }
+    })
+
+    if (text.includes('jee') || text.includes('maths') || text.includes('math')) COURSE_DATABASE.mathematics?.forEach((c) => matched.add(c))
+    if (text.includes('neet') || text.includes('biology')) COURSE_DATABASE.biology?.forEach((c) => matched.add(c))
+    if (text.includes('sat') || text.includes('act') || text.includes('test') || text.includes('exam')) COURSE_DATABASE['college application']?.forEach((c) => matched.add(c))
+    if (text.includes('code') || text.includes('coding') || text.includes('program')) COURSE_DATABASE.programming?.forEach((c) => matched.add(c))
+    if (text.includes('university') || text.includes('college') || text.includes('shortlist')) COURSE_DATABASE['college application']?.forEach((c) => matched.add(c))
+
+    const results = Array.from(matched)
+    if (results.length === 0) return COURSE_DATABASE.default.slice(0, 3)
+
+    const seen = new Set<string>()
+    return results
+        .filter((c) => { const ok = !seen.has(c.title); seen.add(c.title); return ok })
+        .sort((a, b) => Number(b.isFree) - Number(a.isFree))
+        .slice(0, 3)
 }

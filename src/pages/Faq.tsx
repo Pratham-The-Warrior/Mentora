@@ -3,12 +3,13 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Brain } from "lucide-react"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { Link } from "react-router-dom"
+import { AuthNavbar } from "../components/layout/auth-navbar"
 
 const faqs = [
   {
     question: "What is Mentora and how can it help me?",
     answer:
-      "Mentora is an AI-powered STEM career guidance platform that provides personalized recommendations, college matching, and expert counseling to help you make informed decisions about your educational and career path.",
+      "Mentora is a personalized STEM career guidance platform that provides tailored recommendations, college matching, and expert counseling to help you make informed decisions about your educational and career path.",
   },
   {
     question: "Is the platform free to use?",
@@ -39,27 +40,7 @@ const faqs = [
 export default function FAQPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Header */}
-      <header className="border-b bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-sm dark:border-gray-800 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-green-600 rounded-xl flex items-center justify-center">
-                <Brain className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-                Mentora
-              </span>
-            </Link>
-            <div className="flex items-center space-x-4">
-              <ThemeToggle />
-              <Button asChild className="bg-gradient-to-r from-blue-600 to-green-600">
-                <Link to="/login">Log In</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AuthNavbar />
 
       <main className="container mx-auto px-4 py-16 max-w-3xl">
         <div className="text-center mb-12">

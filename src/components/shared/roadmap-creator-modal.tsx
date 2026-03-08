@@ -72,7 +72,7 @@ export function RoadmapCreatorModal({ userData, children }: RoadmapCreatorModalP
         {children || (
           <Button variant="outline" className="w-full justify-start bg-transparent dark:border-gray-600">
             <Sparkles className="w-4 h-4 mr-2" />
-            Generate Roadmap with AI
+            Create Your Roadmap
           </Button>
         )}
       </DialogTrigger>
@@ -82,10 +82,10 @@ export function RoadmapCreatorModal({ userData, children }: RoadmapCreatorModalP
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 dark:text-white">
                 <Sparkles className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                AI-Powered Roadmap Creator
+                Personalized Roadmap Creator
               </DialogTitle>
               <DialogDescription className="dark:text-gray-300">
-                Choose a focus area and we'll generate a personalized step-by-step roadmap based on your profile
+                Choose a focus area and we'll craft a guided step-by-step path based on your profile
               </DialogDescription>
             </DialogHeader>
 
@@ -143,9 +143,9 @@ export function RoadmapCreatorModal({ userData, children }: RoadmapCreatorModalP
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 mb-6">
               <Loader2 className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Creating Your AI Roadmap</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Creating Your Roadmap</h3>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Our AI is analyzing your profile and generating a personalized learning path...
+              Mentora is analyzing your profile and crafting your personalized learning path...
             </p>
             <div className="mt-4 space-y-2 text-left max-w-xs mx-auto">
               <div className="flex items-center gap-3">

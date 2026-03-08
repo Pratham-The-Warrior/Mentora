@@ -7,6 +7,8 @@ import { RoadmapCreatorModal } from "@/components/shared/roadmap-creator-modal"
 import { Brain, BookOpen, Globe, Target, TrendingUp, Calendar, Award, MessageCircle, ExternalLink, Star, Clock, MapPin } from "lucide-react"
 import { ThemeToggle } from "@/components/layout/theme-toggle"
 import { Link } from "react-router-dom"
+import { AuthNavbar } from "../components/layout/auth-navbar"
+import api from "@/lib/api"
 
 interface OnboardingData {
   class: string
@@ -19,13 +21,56 @@ interface OnboardingData {
 
 export default function DashboardPage() {
   const [userData, setUserData] = useState<OnboardingData | null>(null)
+  const [aptitudeResult, setAptitudeResult] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const data = localStorage.getItem("onboardingData")
-    if (data) {
-      setUserData(JSON.parse(data))
+    const fetchProfile = async () => {
+      // 1. Try localStorage first for instant UI
+      const localData = localStorage.getItem("onboardingData")
+      if (localData) {
+        setUserData(JSON.parse(localData))
+        setLoading(false)
+      }
+
+      // 2. Fetch from backend
+      try {
+        const [profileRes, aptitudeRes] = await Promise.all([
+          api.get('/profile'),
+          api.get('/aptitude/latest').catch(() => ({ data: { success: false } })) // Fetch saved results
+        ])
+
+        if (profileRes.data.success && profileRes.data.profile) {
+          const profile = profileRes.data.profile
+          setUserData(profile)
+          localStorage.setItem("onboardingData", JSON.stringify(profile))
+        }
+
+        if (aptitudeRes.data.success) {
+          setAptitudeResult(aptitudeRes.data)
+        }
+      } catch (err) {
+        console.error("Failed to fetch dashboard data:", err)
+      } finally {
+        setLoading(false)
+      }
     }
+
+    fetchProfile()
   }, [])
+
+  if (loading && !userData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <Brain className="w-12 h-12 text-blue-600 mx-auto mb-4 animate-pulse" />
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+            Loading your personalized dashboard...
+          </h2>
+        </div>
+      </div>
+    )
+  }
 
   if (!userData) {
     return (
@@ -45,13 +90,29 @@ export default function DashboardPage() {
   }
 
   const getRecommendedCareers = () => {
+    if (aptitudeResult?.recommendations && aptitudeResult.recommendations.length > 0) {
+      return aptitudeResult.recommendations.map((r: any) => ({
+        title: r.careerTitle,
+        description: r.aiReasoning,
+        matchScore: r.matchScore,
+        isAptitudeBased: true
+      }))
+    }
+
+    // Default stream-based fallback
+    let careers = ["Engineering", "Research", "Technology", "Innovation"]
     if (userData.stream === "PCM" || userData.interests.includes("Computer Science & AI")) {
-      return ["Computer Science Engineering", "Data Science", "Aerospace Engineering", "Robotics Engineering"]
+      careers = ["Computer Science Engineering", "Data Science", "Aerospace Engineering", "Robotics Engineering"]
+    } else if (userData.stream === "PCB" || userData.interests.includes("Medical & Healthcare")) {
+      careers = ["Medicine (MBBS)", "Biotechnology", "Biomedical Engineering", "Research in Life Sciences"]
     }
-    if (userData.stream === "PCB" || userData.interests.includes("Medical & Healthcare")) {
-      return ["Medicine (MBBS)", "Biotechnology", "Biomedical Engineering", "Research in Life Sciences"]
-    }
-    return ["Engineering", "Research", "Technology", "Innovation"]
+
+    return careers.map((c, i) => ({
+      title: c,
+      description: "High growth potential with excellent career prospects in the coming decade.",
+      matchScore: 95 - i * 5,
+      isAptitudeBased: false
+    }))
   }
 
   const getRecommendedColleges = () => {
@@ -114,54 +175,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-green-50 to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      {/* Header */}
-      <header className="border-b bg-white/95 dark:bg-gray-900/95 backdrop-blur-md sticky top-0 z-50 shadow-sm dark:border-gray-800">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 via-purple-600 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Brain className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent">
-                  Mentora
-                </span>
-                <div className="text-xs text-gray-500 dark:text-gray-400 font-medium">STEM Career Guide</div>
-              </div>
-            </Link>
-
-            <nav className="hidden md:flex items-center space-x-1">
-              <Link to="/explore"
-                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-lg transition-all duration-200 font-medium"
-              >
-                Explore
-              </Link>
-              <Link to="/colleges"
-                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950/50 rounded-lg transition-all duration-200 font-medium"
-              >
-                Colleges
-              </Link>
-              <Link to="/counselor"
-                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/50 rounded-lg transition-all duration-200 font-medium"
-              >
-                Counselor
-              </Link>
-              <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-2"></div>
-              <ThemeToggle />
-            </nav>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden flex items-center space-x-2">
-              <ThemeToggle />
-              <Button variant="ghost" size="sm" className="p-2">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <AuthNavbar />
 
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
@@ -235,19 +249,24 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid md:grid-cols-2 gap-4">
-                  {getRecommendedCareers().map((career, index) => (
+                  {getRecommendedCareers().map((career: any, index: number) => (
                     <div
-                      key={career}
-                      className="p-4 border dark:border-gray-600 rounded-lg hover:shadow-md transition-shadow dark:hover:bg-gray-700/50"
+                      key={index}
+                      className="p-4 border dark:border-gray-600 rounded-lg hover:shadow-md transition-shadow dark:hover:bg-gray-700/50 relative overflow-hidden group"
                     >
+                      {career.isAptitudeBased && (
+                        <div className="absolute top-0 right-0 py-1 px-3 bg-blue-600 text-white text-[10px] font-bold rounded-bl-lg">
+                          VERIFIED FIT
+                        </div>
+                      )}
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="font-semibold text-gray-900 dark:text-white">{career}</h3>
-                        <Badge className="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900/50">
-                          {95 - index * 5}% Match
+                        <h3 className="font-semibold text-gray-900 dark:text-white">{career.title}</h3>
+                        <Badge className={`${career.isAptitudeBased ? 'bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300' : 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300'} border-0`}>
+                          {career.matchScore}% Match
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                        High growth potential with excellent career prospects in the coming decade.
+                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-3 line-clamp-2">
+                        {career.description}
                       </p>
                       <Button
                         variant="outline"
@@ -257,7 +276,7 @@ export default function DashboardPage() {
                       >
                         <Link
                           to="/counselor"
-                          state={{ automatedQuery: `I want to learn more about becoming a ${career}. What is the roadmap, required skills, and growth potential?` }}
+                          state={{ automatedQuery: `I want to learn more about becoming a ${career.title}. What is the roadmap, required skills, and growth potential?` }}
                         >
                           Learn More <ExternalLink className="w-3 h-3 ml-1" />
                         </Link>
@@ -403,6 +422,12 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <RoadmapCreatorModal userData={userData} />
+                <Button className="w-full justify-start bg-transparent" variant="outline" asChild>
+                  <Link to="/roadmap">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    View My Roadmap
+                  </Link>
+                </Button>
                 <Button className="w-full justify-start bg-transparent" variant="outline" asChild>
                   <Link to="/quiz">
                     <Brain className="w-4 h-4 mr-2" />

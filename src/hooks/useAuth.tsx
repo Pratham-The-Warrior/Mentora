@@ -24,6 +24,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [token, setToken] = useState<string | null>(null)
     const [loading, setLoading] = useState(true)
 
+    // Fetch profile from backend and populate localStorage
+    const fetchAndCacheProfile = async () => {
+        try {
+            const res = await api.get('/profile')
+            if (res.data.success && res.data.profile) {
+                const p = res.data.profile
+                const onboardingData = {
+                    class: p.class || '',
+                    stream: p.stream || '',
+                    targetExam: p.targetExam || [],
+                    interests: p.interests || [],
+                    challenges: p.challenges || [],
+                    goals: p.goals || '',
+                }
+                localStorage.setItem('onboardingData', JSON.stringify(onboardingData))
+            }
+        } catch {
+            // Profile doesn't exist yet — user hasn't onboarded
+        }
+    }
+
     // Restore session on mount
     useEffect(() => {
         const savedToken = localStorage.getItem('token')
@@ -31,6 +52,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (savedToken && savedUser) {
             setToken(savedToken)
             setUser(JSON.parse(savedUser))
+            // If onboarding data is missing, fetch from backend
+            if (!localStorage.getItem('onboardingData')) {
+                fetchAndCacheProfile()
+            }
         }
         setLoading(false)
     }, [])
@@ -40,10 +65,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const { token: newToken, user: newUser } = response.data
         localStorage.setItem('token', newToken)
         localStorage.setItem('user', JSON.stringify(newUser))
-        // Keep legacy keys for backward compatibility with pages not yet updated
         localStorage.setItem('userEmail', newUser.email)
         setToken(newToken)
         setUser(newUser)
+        // Fetch profile so returning users don't need to re-onboard
+        await fetchAndCacheProfile()
     }
 
     const signup = async (name: string, email: string, password: string) => {

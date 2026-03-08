@@ -9,6 +9,12 @@ export interface ICareer extends Document {
     categories: string[]
     icon: string
     relatedExams: string[]
+    aptitudeRequirements: {
+        logical: number;
+        analytical: number;
+        quantitative: number;
+        verbal: number;
+    }
 }
 
 const CareerSchema = new Schema<ICareer>(
@@ -23,8 +29,12 @@ const CareerSchema = new Schema<ICareer>(
         },
         growthPotential: { type: String, enum: ['High', 'Medium', 'Low'], default: 'High' },
         categories: { type: [String], default: [] },
-        icon: { type: String, default: '💼' },
-        relatedExams: { type: [String], default: [] },
+        aptitudeRequirements: {
+            logical: { type: Number, default: 3 },
+            analytical: { type: Number, default: 3 },
+            quantitative: { type: Number, default: 3 },
+            verbal: { type: Number, default: 3 },
+        },
     },
     { timestamps: true }
 )

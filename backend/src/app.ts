@@ -11,6 +11,7 @@ import careerRoutes from './routes/career.routes'
 import roadmapRoutes from './routes/roadmap.routes'
 import courseRoutes from './routes/course.routes'
 import counselorRoutes from './routes/counselor.routes'
+import aptitudeRoutes from './routes/aptitude.routes'
 import { errorHandler } from './middleware/errorHandler'
 
 const app = express()
@@ -48,6 +49,7 @@ app.use('/api/careers', careerRoutes)
 app.use('/api/roadmap', roadmapRoutes)
 app.use('/api/courses', courseRoutes)
 app.use('/api/counselor', counselorRoutes)
+app.use('/api/aptitude', aptitudeRoutes)
 
 // 404 handler
 app.use((_req, res) => {

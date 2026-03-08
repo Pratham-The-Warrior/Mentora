@@ -46,14 +46,16 @@ export default function OnboardingPage() {
     if (step < totalSteps) {
       setStep(step + 1)
     } else {
-      // Save to localStorage for instant access
+      // 1. Save to localStorage for instant UI feedback
       localStorage.setItem("onboardingData", JSON.stringify(data))
       localStorage.setItem("currentUser", "true")
-      // Save to backend API (non-blocking)
+
+      // 2. Save to backend database for persistence across devices
       try {
         await api.post('/profile', data)
       } catch (err) {
-        console.warn('Profile API save failed, using localStorage fallback:', err)
+        console.error('Profile API save failed:', err)
+        // We still redirect because localStorage is our immediate fallback
       }
       navigate("/dashboard")
     }

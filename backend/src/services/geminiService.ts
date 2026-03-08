@@ -28,6 +28,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                         'Join an online community (Discord/Reddit) in your target field',
                     ],
                     completed: false,
+                    category: 'Foundation & Assessment',
                 },
                 {
                     title: 'Core Technical Skills',
@@ -40,6 +41,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                         'Learn Git version control basics',
                     ],
                     completed: false,
+                    category: 'Skill Development',
                 },
                 {
                     title: 'Entrance Exam Preparation',
@@ -52,6 +54,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                         'Track weak topics and revise them every week',
                     ],
                     completed: false,
+                    category: 'Exam Preparation',
                 },
                 {
                     title: 'College Readiness & Applications',
@@ -64,6 +67,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                         'Register for target entrance exams',
                     ],
                     completed: false,
+                    category: 'Application Cycle',
                 },
             ]
             : isMedical
@@ -79,6 +83,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                             'Attempt NEET chapter-wise mock tests',
                         ],
                         completed: false,
+                        category: 'Dual Stream Strategy',
                     },
                     {
                         title: 'NEET Preparation Deep Dive',
@@ -91,6 +96,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                             'Analyze mock test performance and improve weak areas',
                         ],
                         completed: false,
+                        category: 'Profile Enrichment',
                     },
                     {
                         title: 'College Research & Application',
@@ -103,6 +109,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                             'Have backup options including BAMS, BDS programs',
                         ],
                         completed: false,
+                        category: 'Application Cycle',
                     },
                 ]
                 : [
@@ -117,6 +124,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                             'Shadow or interview a professional in your field of interest',
                         ],
                         completed: false,
+                        category: 'Career Exploration',
                     },
                     {
                         title: 'Skill Building',
@@ -129,6 +137,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                             'Join student clubs or communities related to your interest',
                         ],
                         completed: false,
+                        category: 'Skill Development',
                     },
                     {
                         title: 'Academic & Exam Strategy',
@@ -141,6 +150,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                             'Start working on extra-curriculars and letters of recommendation',
                         ],
                         completed: false,
+                        category: 'Application Cycle',
                     },
                 ],
         exams: [
@@ -155,6 +165,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                     'Gather all study materials: NCERT, reference books, online resources',
                 ],
                 completed: false,
+                category: 'Exam Strategy',
             },
             {
                 title: 'Concept Mastery',
@@ -167,6 +178,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                     'Create formula sheets and revision notes for each chapter',
                 ],
                 completed: false,
+                category: 'Concept Mastery',
             },
             {
                 title: 'Mock Tests & Revision',
@@ -179,6 +191,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                     'Improve speed and accuracy through timed practice',
                 ],
                 completed: false,
+                category: 'Mock Tests & Revision',
             },
         ],
         skills: [
@@ -193,6 +206,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                     'Find the best free learning resources for each skill',
                 ],
                 completed: false,
+                category: 'Skill Identification',
             },
             {
                 title: 'Hands-on Learning',
@@ -205,6 +219,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                     'Practice daily using platforms like LeetCode / Kaggle / HackerRank',
                 ],
                 completed: false,
+                category: 'Hands-on Learning',
             },
             {
                 title: 'Portfolio & Showcase',
@@ -217,6 +232,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                     'Get feedback from a mentor or professional in the field',
                 ],
                 completed: false,
+                category: 'Portfolio & Showcase',
             },
         ],
         college: [
@@ -231,6 +247,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                     'Connect with current students on Reddit / Quora / LinkedIn',
                 ],
                 completed: false,
+                category: 'Dual Stream Strategy',
             },
             {
                 title: 'Application Building',
@@ -243,6 +260,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                     'Request teacher recommendations from 2 subject teachers',
                 ],
                 completed: false,
+                category: 'Profile Enrichment',
             },
             {
                 title: 'Application Submission',
@@ -255,6 +273,7 @@ const generateFallbackRoadmap = (profile: UserProfile, focusArea: string): IMile
                     'Apply for scholarships through college portals and external organizations',
                 ],
                 completed: false,
+                category: 'Application Cycle',
             },
         ],
     }
@@ -284,6 +303,7 @@ Generate a JSON array of 3-4 milestone objects. Each milestone must have:
 - description: string (1-2 sentences about this phase)
 - tasks: string[] (exactly 4 specific, actionable tasks)
 - completed: false
+- category: string (a short grouping label for progress tracking, e.g., "Dual Stream Strategy", "Profile Enrichment", "Application Cycle")
 
 Return ONLY a valid JSON array with no markdown or explanation.`
 

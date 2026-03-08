@@ -7,6 +7,7 @@ export interface IMilestone {
     tasks: string[]
     completed: boolean
     completedAt?: Date
+    category?: string
 }
 
 export interface IRoadmap extends Document {
@@ -27,6 +28,7 @@ const MilestoneSchema = new Schema<IMilestone>(
         tasks: { type: [String], default: [] },
         completed: { type: Boolean, default: false },
         completedAt: { type: Date },
+        category: { type: String, default: '' },
     },
     { _id: false }
 )

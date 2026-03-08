@@ -81,8 +81,19 @@ export const toggleMilestone = async (req: AuthRequest, res: Response): Promise<
         return
     }
 
-    roadmap.milestones[milestoneIndex].completed = !roadmap.milestones[milestoneIndex].completed
-    if (roadmap.milestones[milestoneIndex].completed) {
+    const isCompleting = !roadmap.milestones[milestoneIndex].completed
+
+    // Sequential locking: can only complete phase N if all phases 0..(N-1) are done
+    if (isCompleting && milestoneIndex > 0) {
+        const allPreviousDone = roadmap.milestones.slice(0, milestoneIndex).every(m => m.completed)
+        if (!allPreviousDone) {
+            res.status(400).json({ success: false, message: 'Complete previous phases first.' })
+            return
+        }
+    }
+
+    roadmap.milestones[milestoneIndex].completed = isCompleting
+    if (isCompleting) {
         roadmap.milestones[milestoneIndex].completedAt = new Date()
     } else {
         roadmap.milestones[milestoneIndex].completedAt = undefined
