@@ -118,8 +118,8 @@ function formatInline(text: string): React.ReactNode {
 function TypingIndicator() {
   return (
     <div className="flex items-end gap-3">
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-green-600 flex items-center justify-center flex-shrink-0">
-        <Brain className="w-4 h-4 text-white" />
+      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-[#00b050] flex items-center justify-center flex-shrink-0">
+        <Sparkles className="w-4 h-4 text-white" />
       </div>
       <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
         <div className="flex gap-1 items-center h-4">
@@ -205,11 +205,11 @@ function AIChatSection() {
       <div className="space-y-4">
         <Card className="border-0 shadow-lg dark:bg-gray-800/50">
           <CardHeader className="pb-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-green-600 flex items-center justify-center mb-2 shadow-md">
-              <Brain className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-[#00b050] flex items-center justify-center mb-2 shadow-md">
+              <Sparkles className="w-5 h-5 text-white" />
             </div>
-            <CardTitle className="text-base dark:text-white">AI Career Counselor</CardTitle>
-            <CardDescription className="text-xs dark:text-gray-400">Powered by Gemini AI · Expert in Indian education</CardDescription>
+            <CardTitle className="text-base dark:text-white">Instant Mentora Guide</CardTitle>
+            <CardDescription className="text-xs dark:text-gray-400">Expert-trained educational advisor for Indian students</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {(userData.stream || userData.class) && (
@@ -255,12 +255,12 @@ function AIChatSection() {
         <div className="flex-1 overflow-y-auto p-5 space-y-5">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-center py-8">
-              <div className="inline-flex w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-green-600 items-center justify-center shadow-lg mb-4">
-                <Brain className="w-7 h-7 text-white" />
+              <div className="inline-flex w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-[#00b050] items-center justify-center shadow-lg mb-4">
+                <Sparkles className="w-7 h-7 text-white" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Ask Mentora AI</h3>
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Ask Your Mentora Guide</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 max-w-sm">
-                Get instant, personalized career guidance powered by Gemini AI. I know the Indian education system inside out!
+                Get instant, personalized career guidance. Our guide is an expert in the Indian education system and career planning.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg">
                 {PROMPT_SUGGESTIONS.map((s, i) => (
@@ -281,10 +281,10 @@ function AIChatSection() {
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex gap-3 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"} items-end`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${msg.role === "user"
-                    ? "bg-gradient-to-br from-green-500 to-emerald-600"
-                    : "bg-gradient-to-br from-blue-600 to-green-600"
+                    ? "bg-gradient-to-br from-[#00b050] to-emerald-600"
+                    : "bg-gradient-to-br from-blue-600 to-[#00b050]"
                     }`}>
-                    {msg.role === "user" ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
+                    {msg.role === "user" ? <User className="w-4 h-4 text-white" /> : <Sparkles className="w-4 h-4 text-white" />}
                   </div>
                   <div className={`max-w-[85%] flex flex-col gap-1 ${msg.role === "user" ? "items-end" : "items-start"}`}>
                     <div className={`px-4 py-3 rounded-2xl shadow-sm ${msg.role === "user"
@@ -371,7 +371,7 @@ export default function CounselorPage() {
         <Tabs defaultValue="ai-chat" className="max-w-6xl mx-auto">
           <TabsList className="grid w-full grid-cols-3 mb-8 dark:bg-gray-800">
             <TabsTrigger value="ai-chat" className="dark:data-[state=active]:bg-gray-700 dark:text-gray-300">
-              🤖 AI Counselor
+              <Sparkles className="w-4 h-4 mr-2" /> Instant Guide
             </TabsTrigger>
             <TabsTrigger value="book-session" className="dark:data-[state=active]:bg-gray-700 dark:text-gray-300">
               Book a Session

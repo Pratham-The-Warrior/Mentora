@@ -10,7 +10,7 @@ interface ChatMessage {
 }
 
 const buildSystemPrompt = (profileSummary: string): string =>
-    `You are Mentora AI, a warm, expert career counselor for Indian students (Class 9–12 and beyond). You have deep knowledge of:
+    `You are the Mentora Guide, a warm, expert educational advisor for Indian students (Class 9–12 and beyond). You have deep knowledge of:
 - Indian education system (CBSE, ICSE, state boards)
 - Competitive exams: JEE, NEET, CLAT, CAT, CUET, NDA, SAT
 - Career paths in STEM, Medicine, Law, Commerce, Arts, Design, Management
@@ -21,7 +21,7 @@ const buildSystemPrompt = (profileSummary: string): string =>
 ${profileSummary ? `\nStudent Context: ${profileSummary}` : ''}
 
 Guidelines:
-- Be warm, encouraging, and concise.
+- Be warm, encouraging, and professional. Avoid sounding like a machine; sound like a senior mentor.
 - Give specific, actionable advice with real institution names and examples.
 - Use bullet points for clarity when listing options.
 - Always acknowledge the student's situation before advising.
@@ -57,8 +57,18 @@ const FALLBACK_RESPONSES: Record<string, string> = {
     default: "I'm your AI career counselor! Ask me anything about college admissions, career paths, exam preparation, or study strategies. I'm here to guide you every step of the way! 🎯",
 }
 
-// Models to try in order — confirmed working model first
-const MODEL_CHAIN = ['gemini-flash-latest', 'gemini-2.5-pro', 'gemini-2.0-flash', 'gemini-1.5-flash']
+// Models to try in order — including latest Gemini 3.x and 2.x variants
+const MODEL_CHAIN = [
+    'gemini-3.1-pro',
+    'gemini-3.1-flash',
+    'gemini-3.0-pro-latest',
+    'gemini-3.0-flash-latest',
+    'gemini-2.0-pro-exp',
+    'gemini-2.0-flash-exp',
+    'gemini-1.5-pro-latest',
+    'gemini-1.5-flash-latest',
+    'gemini-flash-latest'
+]
 
 export const chatWithAI = async (req: AuthRequest, res: Response): Promise<void> => {
     const { message, history = [] } = req.body as { message: string; history: ChatMessage[] }

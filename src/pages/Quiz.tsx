@@ -398,82 +398,408 @@ export default function QuizPage() {
 
   if (step === 'results' && results) {
     const chartData = [
-      { subject: 'Logical', A: results.scores.logical, fullMark: 5 },
-      { subject: 'Analytical', A: results.scores.analytical, fullMark: 5 },
-      { subject: 'Quantitative', A: results.scores.quantitative, fullMark: 5 },
-      { subject: 'Verbal', A: results.scores.verbal, fullMark: 5 },
+      { subject: 'LOGICAL', A: results.scores.logical, fullMark: 5 },
+      { subject: 'ANALYTICAL', A: results.scores.analytical, fullMark: 5 },
+      { subject: 'QUANTITATIVE', A: results.scores.quantitative, fullMark: 5 },
+      { subject: 'VERBAL', A: results.scores.verbal, fullMark: 5 },
     ]
 
+    const overallScore = (
+      (results.scores.logical + results.scores.analytical + results.scores.quantitative + results.scores.verbal) / 4
+    ).toFixed(1)
+
+    // Calculate Top Performer and Growth Opportunity
+    const scoreEntries = Object.entries(results.scores)
+    scoreEntries.sort((a, b) => b[1] - a[1]) // highest first
+
+    // Default values
+    let topAttributeName = "Quantitative Reasoning"
+    let topAttributeDesc = "You excel at identifying patterns in numerical data and complex logical sequences. This puts you in the top 5% of candidates."
+    let growthAttributeName = "Growth Opportunity"
+    let growthAttributeDesc = "While strong, your verbal processing speed can be further optimized. Consider practicing structured communication exercises."
+
+    if (scoreEntries.length >= 4) {
+      // Top Attribute
+      const topKey = scoreEntries[0][0]
+      if (topKey === 'logical') {
+        topAttributeName = "Logical Reasoning"
+        topAttributeDesc = "You excel at deducing underlying principles in complex scenarios. This puts you in a strong position for problem-solving tasks."
+      } else if (topKey === 'analytical') {
+        topAttributeName = "Analytical Thinking"
+        topAttributeDesc = "You are highly skilled at breaking down data and identifying key trends to solve complex issues."
+      } else if (topKey === 'quantitative') {
+        topAttributeName = "Quantitative Reasoning"
+        topAttributeDesc = "You excel at identifying patterns in numerical data and complex logical sequences. This puts you in the top 5% of candidates."
+      } else if (topKey === 'verbal') {
+        topAttributeName = "Verbal Proficiency"
+        topAttributeDesc = "You excel in comprehending and synthesizing complex textual information rapidly."
+      }
+
+      // Growth Attribute
+      const bottomKey = scoreEntries[3][0]
+      if (bottomKey === 'logical') {
+        growthAttributeDesc = "While strong, your foundational logical reasoning can be further optimized. Consider practicing more puzzles."
+      } else if (bottomKey === 'analytical') {
+        growthAttributeDesc = "While strong, your data parsing speed can be further optimized. Consider case-study simulations."
+      } else if (bottomKey === 'quantitative') {
+        growthAttributeDesc = "While strong, your numerical processing can be further optimized. Consider practicing rapid mental math."
+      } else if (bottomKey === 'verbal') {
+        growthAttributeDesc = "While strong, your verbal processing speed can be further optimized. Consider practicing structured communication exercises."
+      }
+    }
+
+    // Determine max score for star
+    const maxScore = scoreEntries[0][1];
+
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-20">
+      <div className="min-h-screen bg-[#FAFAF9] dark:bg-gray-950 pb-24 font-sans text-gray-900 dark:text-gray-100">
         <AuthNavbar />
         <div className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto">
-            <header className="text-center mb-8">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-green-500/20"
-              >
-                <CheckCircle className="w-8 h-8 text-white" />
-              </motion.div>
-              <h1 className="text-4xl font-black dark:text-white mb-2 font-heading tracking-tight text-[#1F3E35]">Assessment Complete</h1>
-              <p className="text-sm font-medium text-gray-600 dark:text-gray-400 font-sans">Here is your realistic aptitude profile.</p>
+          <div className="max-w-5xl mx-auto flex flex-col items-center">
+
+            <header className="text-center mb-12 flex flex-col items-center w-full max-w-2xl">
+              <div className="relative mb-6 flex justify-center items-center">
+                <div className="relative w-16 h-16 bg-[#dce5df] dark:bg-emerald-800/40 rounded-full flex items-center justify-center shadow-sm">
+                  <div className="w-8 h-8 bg-[#2B5341] rounded-full flex items-center justify-center shadow-md shadow-emerald-900/20">
+                    <Check className="w-4 h-4 text-white stroke-[3]" />
+                  </div>
+                </div>
+              </div>
+
+              <h1 className="text-3xl sm:text-4xl font-black mb-4 tracking-tight text-[#1F2937] dark:text-white">Assessment Complete</h1>
+              <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                Congratulations! You've successfully mapped your cognitive profile. Your results are processed and ready for analysis.
+              </p>
             </header>
 
-            <div className="grid lg:grid-cols-2 gap-8 mb-12">
-              <Card className="border-0 shadow-xl bg-white dark:bg-gray-900/50 font-sans overflow-hidden">
-                <div className="h-1.5 bg-emerald-600" />
-                <CardHeader className="py-4">
-                  <CardTitle className="text-xl font-bold dark:text-emerald-50 text-[#1F3E35] font-heading">Aptitude Profile</CardTitle>
-                  <CardDescription className="text-xs font-medium">Strength distribution across 4 core pillars</CardDescription>
-                </CardHeader>
-                <CardContent className="h-[300px] pb-4">
+            {/* Top Section: Radar Chart + Key Insights */}
+            <div className="grid lg:grid-cols-[1fr_1fr] gap-6 w-full mb-6">
+
+              {/* Radar Chart Card */}
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col relative overflow-hidden">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">Aptitude Profile</h3>
+                  <div className="flex items-center gap-1.5 bg-[#EAEFE9] dark:bg-gray-800 text-[#2B5341] dark:text-emerald-400 px-3 py-1 rounded-full">
+                    <span className="text-sm font-black">{overallScore}</span>
+                    <span className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase">Overall Score</span>
+                  </div>
+                </div>
+
+                <div className="flex-1 min-h-[250px] -mx-4">
                   <ResponsiveContainer width="100%" height="100%">
-                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
-                      <PolarGrid stroke="#E2E8F0" />
-                      <PolarAngleAxis dataKey="subject" tick={{ fill: '#64748B', fontSize: 12, fontWeight: 700 }} />
-                      <PolarRadiusAxis angle={30} domain={[0, 5]} tick={false} axisLine={false} />
+                    <RadarChart cx="50%" cy="50%" outerRadius="65%" data={chartData}>
+                      <PolarGrid stroke="#F1F5F9" strokeWidth={1.5} />
+                      <PolarAngleAxis
+                        dataKey="subject"
+                        tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 700, letterSpacing: '1px' }}
+                        dy={4}
+                      />
+                      <PolarRadiusAxis domain={[0, 5]} tick={false} axisLine={false} />
                       <Radar
                         name="Score"
                         dataKey="A"
-                        stroke="#059669"
-                        fill="#10B981"
-                        fillOpacity={0.5}
+                        stroke="#86EFAC"
+                        strokeWidth={2}
+                        fill="#bbf7d0"
+                        fillOpacity={0.6}
                       />
                     </RadarChart>
                   </ResponsiveContainer>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              <div className="flex flex-col justify-center space-y-8">
-                <div className="space-y-4">
-                  <h3 className="text-2xl font-bold text-[#1F3E35] dark:text-emerald-50">Key Insights</h3>
-                  <p className="text-[#4A675F] dark:text-gray-400 leading-relaxed font-medium">
-                    Based on our adaptive algorithm, you performed exceptionally well in
-                    <span className="text-emerald-600 font-black mx-1">
-                      {Object.entries(results.scores).sort((a, b) => b[1] - a[1])[0][0]} reasoning
-                    </span>.
-                    Your profile suggests a strong foundation for professional success.
+              {/* Key Insights Section */}
+              <div className="flex flex-col gap-4">
+                <div className="mb-2">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">Key Insights</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Based on your performance, we've identified your strongest cognitive attributes.
                   </p>
                 </div>
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  {Object.entries(results.scores).map(([key, val]) => (
-                    <div key={key} className="p-5 rounded-2xl bg-white dark:bg-gray-800 shadow-sm border border-emerald-50 dark:border-emerald-900/20">
-                      <p className="text-[10px] text-emerald-600 uppercase tracking-widest mb-1 font-black">{key}</p>
-                      <div className="text-3xl font-black text-[#1F3E35] dark:text-white">{val}<span className="text-sm text-gray-400 font-bold ml-1">/5</span></div>
+
+                {/* Top Performer Insight */}
+                <div className="bg-[#F5F8F6] dark:bg-[#1A2621] rounded-2xl p-5 border border-[#E8EEEA] dark:border-[#1E3326]">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1">
+                      <Zap className="w-5 h-5 text-[#2B5341] dark:text-emerald-400" />
                     </div>
-                  ))}
+                    <div>
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <h4 className="font-bold text-gray-900 dark:text-white text-sm">{topAttributeName}</h4>
+                        <span className="bg-[#2B5341] text-white text-[9px] font-black px-2 py-0.5 rounded-sm uppercase tracking-wide">
+                          TOP PERFORMER
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
+                        {topAttributeDesc}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <Button
-                  onClick={startTest}
-                  variant="outline"
-                  className="h-14 rounded-2xl border-2 border-emerald-100 text-emerald-700 font-black hover:bg-emerald-50 transition-all flex items-center justify-center gap-2 active:scale-95"
-                >
-                  <Zap className="w-5 h-5 fill-emerald-600 text-emerald-600" /> Retake Assessment
-                </Button>
+
+                {/* Growth Opportunity Insight */}
+                <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1">
+                      <Brain className="w-5 h-5 text-gray-400 drop-shadow-sm" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900 dark:text-white text-sm mb-1.5">{growthAttributeName}</h4>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                        {growthAttributeDesc}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* 4 Score Cards Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full mb-10">
+
+              {/* Logical */}
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-between h-28 relative">
+                {results.scores.logical === maxScore && (
+                  <div className="absolute top-0 right-0 w-8 h-8 overflow-hidden rounded-tr-2xl">
+                    <div className="absolute top-0 right-0 w-8 h-8 bg-[#EAEFE9] dark:bg-emerald-900/40 translate-x-1/2 -translate-y-1/2 rotate-45" />
+                    <svg className="absolute top-1.5 right-1.5 w-2 h-2 text-[#2B5341] dark:text-emerald-400 fill-current" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" /></svg>
+                  </div>
+                )}
+                <div>
+                  <Brain className="w-4 h-4 text-gray-400 mb-2" />
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">LOGICAL</p>
+                </div>
+                <div className="text-2xl font-black text-gray-900 dark:text-white flex items-baseline">
+                  {results.scores.logical.toFixed(1)}<span className="text-xs text-gray-300 dark:text-gray-600 font-bold ml-1">/5</span>
+                </div>
+              </div>
+
+              {/* Analytical */}
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-between h-28 relative">
+                {results.scores.analytical === maxScore && (
+                  <div className="absolute top-0 right-0 w-8 h-8 overflow-hidden rounded-tr-2xl">
+                    <div className="absolute top-0 right-0 w-8 h-8 bg-[#EAEFE9] dark:bg-emerald-900/40 translate-x-1/2 -translate-y-1/2 rotate-45" />
+                    <svg className="absolute top-1.5 right-1.5 w-2 h-2 text-[#2B5341] dark:text-emerald-400 fill-current" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" /></svg>
+                  </div>
+                )}
+                <div>
+                  <svg className="w-4 h-4 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">ANALYTICAL</p>
+                </div>
+                <div className="text-2xl font-black text-gray-900 dark:text-white flex items-baseline">
+                  {results.scores.analytical.toFixed(1)}<span className="text-xs text-gray-300 dark:text-gray-600 font-bold ml-1">/5</span>
+                </div>
+              </div>
+
+              {/* Quantitative */}
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-between h-28 relative">
+                {results.scores.quantitative === maxScore && (
+                  <div className="absolute top-0 right-0 w-8 h-8 overflow-hidden rounded-tr-2xl">
+                    <div className="absolute top-0 right-0 w-8 h-8 bg-[#EAEFE9] bg-opacity-80 translate-x-1/2 -translate-y-1/2 rotate-45" />
+                    <svg className="absolute top-1.5 right-1.5 w-2 h-2 text-[#2B5341] dark:text-emerald-400 fill-current" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" /></svg>
+                  </div>
+                )}
+                <div>
+                  <svg className="w-4 h-4 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">QUANTITATIVE</p>
+                </div>
+                <div className="text-2xl font-black text-gray-900 dark:text-white flex items-baseline">
+                  {results.scores.quantitative.toFixed(1)}<span className="text-xs text-gray-300 dark:text-gray-600 font-bold ml-1">/5</span>
+                </div>
+              </div>
+
+              {/* Verbal */}
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-between h-28 relative">
+                {results.scores.verbal === maxScore && (
+                  <div className="absolute top-0 right-0 w-8 h-8 overflow-hidden rounded-tr-2xl">
+                    <div className="absolute top-0 right-0 w-8 h-8 bg-[#EAEFE9] dark:bg-emerald-900/40 translate-x-1/2 -translate-y-1/2 rotate-45" />
+                    <svg className="absolute top-1.5 right-1.5 w-2 h-2 text-[#2B5341] dark:text-emerald-400 fill-current" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" /></svg>
+                  </div>
+                )}
+                <div>
+                  <div className="font-serif italic text-gray-400 mb-1 text-sm leading-none ml-1">A/a</div>
+                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">VERBAL</p>
+                </div>
+                <div className="text-2xl font-black text-gray-900 dark:text-white flex items-baseline">
+                  {results.scores.verbal.toFixed(1)}<span className="text-xs text-gray-300 dark:text-gray-600 font-bold ml-1">/5</span>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Detailed Pillar Breakdown */}
+            <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-white">Detailed Pillar Breakdown</h2>
+
+            <div className="grid md:grid-cols-2 gap-4 w-full mb-12">
+
+              {/* Logical Reasoning */}
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col gap-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#EAEFE9] dark:bg-emerald-900/30 flex items-center justify-center">
+                      <Brain className="w-4 h-4 text-[#2B5341] dark:text-emerald-400" />
+                    </div>
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">Logical Reasoning</h3>
+                  </div>
+                  <div className="text-sm font-black text-[#2B5341] dark:text-emerald-400 flex items-baseline">
+                    {results.scores.logical.toFixed(1)}<span className="text-[10px] text-gray-400 ml-0.5">/5</span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-500 dark:text-gray-400 flex-1 leading-relaxed">
+                  Your score indicates a high level of proficiency in deductive and inductive reasoning. You are adept at identifying underlying principles and structures in complex information, allowing you to solve problems methodically and efficiently.
+                </p>
+
+                <div>
+                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">RECOMMENDATIONS</p>
+                  <ul className="space-y-2">
+                    <li className="flex gap-2 items-start text-xs text-gray-600 dark:text-gray-300">
+                      <CheckCircle className="w-3.5 h-3.5 text-[#2B5341] mt-0.5 shrink-0" />
+                      <span>Practice advanced syllogisms and logic puzzles.</span>
+                    </li>
+                    <li className="flex gap-2 items-start text-xs text-gray-600 dark:text-gray-300">
+                      <CheckCircle className="w-3.5 h-3.5 text-[#2B5341] mt-0.5 shrink-0" />
+                      <span>Engage in strategic games like chess or complex simulators.</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Analytical Thinking */}
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col gap-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#EAEFE9] dark:bg-emerald-900/30 flex items-center justify-center">
+                      <svg className="w-4 h-4 text-[#2B5341] dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                    </div>
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">Analytical Thinking</h3>
+                  </div>
+                  <div className="text-sm font-black text-[#2B5341] dark:text-emerald-400 flex items-baseline">
+                    {results.scores.analytical.toFixed(1)}<span className="text-[10px] text-gray-400 ml-0.5">/5</span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-500 dark:text-gray-400 flex-1 leading-relaxed">
+                  You demonstrate a strong ability to break down data and identify key trends. While consistent, there is room to improve your speed when processing large volumes of unstructured information to reach conclusions faster.
+                </p>
+
+                <div>
+                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">RECOMMENDATIONS</p>
+                  <ul className="space-y-2">
+                    <li className="flex gap-2 items-start text-xs text-gray-600 dark:text-gray-300">
+                      <CheckCircle className="w-3.5 h-3.5 text-[#2B5341] mt-0.5 shrink-0" />
+                      <span>Practice case-study simulations involving data sets.</span>
+                    </li>
+                    <li className="flex gap-2 items-start text-xs text-gray-600 dark:text-gray-300">
+                      <CheckCircle className="w-3.5 h-3.5 text-[#2B5341] mt-0.5 shrink-0" />
+                      <span>Explore data visualization courses to enhance pattern recognition.</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Quantitative Ability */}
+              <div className="bg-[#F5F8F6] dark:bg-[#1A2621] rounded-2xl p-6 border border-[#E8EEEA] dark:border-[#1E3326] shadow-sm flex flex-col gap-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-white dark:bg-emerald-900/50 flex items-center justify-center border border-gray-100 dark:border-emerald-800">
+                        <svg className="w-4 h-4 text-[#2B5341] dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                      </div>
+                      <h3 className="text-sm font-bold text-gray-900 dark:text-white">Quantitative Ability</h3>
+                    </div>
+                    <span className="bg-[#2B5341] text-white text-[8px] font-black px-2 py-0.5 w-max rounded-sm uppercase tracking-wider ml-11">
+                      EXCEPTIONAL
+                    </span>
+                  </div>
+                  <div className="text-sm font-black text-[#2B5341] dark:text-emerald-400 flex items-baseline">
+                    {results.scores.quantitative.toFixed(1)}<span className="text-[10px] text-gray-500 ml-0.5">/5</span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-600 dark:text-gray-300 flex-1 leading-relaxed">
+                  Your performance in this area is outstanding. You possess rapid numerical processing skills and an intuitive grasp of mathematical relationships, allowing you to solve complex quantitative problems with high accuracy.
+                </p>
+
+                <div>
+                  <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-2">RECOMMENDATIONS</p>
+                  <ul className="space-y-2">
+                    <li className="flex gap-2 items-start text-xs text-gray-700 dark:text-gray-300">
+                      <CheckCircle className="w-3.5 h-3.5 text-[#2B5341] mt-0.5 shrink-0" />
+                      <span>Explore advanced statistical modeling or algorithmic thinking.</span>
+                    </li>
+                    <li className="flex gap-2 items-start text-xs text-gray-700 dark:text-gray-300">
+                      <CheckCircle className="w-3.5 h-3.5 text-[#2B5341] mt-0.5 shrink-0" />
+                      <span>Apply your skills to predictive analytics or financial modeling.</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Verbal Proficiency */}
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col gap-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#EAEFE9] dark:bg-emerald-900/30 flex items-center justify-center">
+                      <div className="font-serif italic text-[#2B5341] dark:text-emerald-400 text-sm leading-none ml-1 font-bold">A/a</div>
+                    </div>
+                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">Verbal Proficiency</h3>
+                  </div>
+                  <div className="text-sm font-black text-[#2B5341] dark:text-emerald-400 flex items-baseline">
+                    {results.scores.verbal.toFixed(1)}<span className="text-[10px] text-gray-400 ml-0.5">/5</span>
+                  </div>
+                </div>
+
+                <p className="text-xs text-gray-500 dark:text-gray-400 flex-1 leading-relaxed">
+                  You have a solid foundation in verbal reasoning and comprehension. Focusing on increasing your reading speed and refining your ability to synthesize main ideas from complex texts will help elevate this score further.
+                </p>
+
+                <div>
+                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-2">RECOMMENDATIONS</p>
+                  <ul className="space-y-2">
+                    <li className="flex gap-2 items-start text-xs text-gray-600 dark:text-gray-300">
+                      <CheckCircle className="w-3.5 h-3.5 text-[#2B5341] mt-0.5 shrink-0" />
+                      <span>Engage with high-complexity literature and editorial content.</span>
+                    </li>
+                    <li className="flex gap-2 items-start text-xs text-gray-600 dark:text-gray-300">
+                      <CheckCircle className="w-3.5 h-3.5 text-[#2B5341] mt-0.5 shrink-0" />
+                      <span>Practice summarizing complex documents into concise bullet points.</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full justify-center mt-4">
+              <Button
+                onClick={() => window.print()}
+                className="h-12 px-8 rounded-xl bg-[#2B5341] hover:bg-[#1f3d30] text-white font-bold text-sm flex items-center gap-2 shadow-lg shadow-emerald-900/10 w-full sm:w-auto"
+              >
+                Print Report <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => window.location.href = '/dashboard'}
+                className="h-12 px-8 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 font-bold text-sm w-full sm:w-auto hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                Return to Dashboard
+              </Button>
+            </div>
+
+            <button
+              onClick={startTest}
+              className="mt-6 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 underline underline-offset-4 decoration-gray-300 hover:decoration-gray-400 transition-colors"
+            >
+              Retake Assessment
+            </button>
+
+            <div className="mt-16 text-[10px] text-gray-400 dark:text-gray-500 font-medium tracking-wide">
+              © 2024 Mentora AI Assessment System. All results are encrypted and confidential.
+            </div>
+
           </div>
         </div>
       </div>

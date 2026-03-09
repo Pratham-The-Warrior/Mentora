@@ -10,9 +10,9 @@ const startServer = async () => {
     await connectDB()
 
     app.listen(PORT, () => {
-        console.log(`🚀 Mentora backend running at http://localhost:${PORT}`)
-        console.log(`📡 Environment: ${process.env.NODE_ENV || 'development'}`)
-        console.log(`🤖 Gemini AI: ${process.env.GEMINI_API_KEY ? 'Enabled ✅' : 'Using fallback 📋'}`)
+        console.log(` Mentora backend running at http://localhost:${PORT}`)
+        console.log(` Environment: ${process.env.NODE_ENV || 'development'}`)
+        console.log(` Gemini AI: ${process.env.GEMINI_API_KEY ? 'Enabled ✅' : 'Using fallback 📋'}`)
     })
 }
 
